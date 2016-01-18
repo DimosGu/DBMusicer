@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:background="#ffffff">
+    <ImageView
+        android:id="@+id/image_view"
+        android:src="@drawable/like_s"
+        android:layout_width="60dp"
+        android:layout_height="60dp" />
+    <TextView
+        android:id="@+id/artist_name"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_toRightOf="@+id/image_view"
+        android:text="歌曲名"
+        android:textSize="14dp"
+        android:gravity="bottom"
+        android:textColor="@color/colorPrimary"/>
+    <TextView
+        android:id="@+id/style"
+        android:layout_width="wrap_content"
+        android:layout_height="15dp"
+        android:layout_marginLeft="10dp"
+        android:layout_below="@+id/artist_name"
+        android:layout_toRightOf="@+id/image_view"
+        android:text="歌曲名"
+        android:textSize="13dp"
+        android:gravity="center_vertical"
+        android:textColor="@color/colorPrimary"/>
+    <TextView
+        android:id="@+id/follows"
+        android:layout_width="wrap_content"
+        android:layout_height="15dp"
+        android:layout_marginLeft="10dp"
+        android:layout_below="@+id/style"
+        android:layout_toRightOf="@+id/image_view"
+        android:text="歌曲名"
+        android:textSize="13dp"
+        android:gravity="top"
+        android:textColor="@color/colorPrimary"/>
+    <ImageButton
+        android:id="@+id/love_btn"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:background="#ffffff"
+        android:src="@drawable/like"/>
+
+</RelativeLayout>

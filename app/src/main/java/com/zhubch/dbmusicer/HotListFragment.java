@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +17,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.loopj.android.http.TextHttpResponseHandler;
 import com.zhubch.dbmusicer.Model.Api;
+import com.zhubch.dbmusicer.Model.Artist;
 import com.zhubch.dbmusicer.Model.Music;
 import com.zhubch.dbmusicer.Utils.HttpUtils;
 
@@ -28,13 +28,19 @@ import java.util.List;
 import java.util.Map;
 
 
-public class HotListFragment extends BaseFragment {
+public class HotListFragment extends BaseFragment implements View.OnClickListener{
 
     private ViewPager viewPager;
     private View rootView;
+    private TextView segment_music;
+    private TextView segment_artist;
     private ListView musicList;
+    private ListView artistList;
 
     private ArrayList<Music> musics;
+    private ArrayList<Artist> artists;
+
+    private int currentPage;
 
     public HotListFragment() {
         // Required empty public constructor
@@ -51,17 +57,32 @@ public class HotListFragment extends BaseFragment {
     }
 
     @Override
+    public void onClick(View view) {
+        segment_music.setBackgroundColor(R.color.colorAccent);
+        int selectPage = view.getId() == R.id.segment_music ? 0 : 1;
+        if (currentPage != selectPage){
+            viewPager.setCurrentItem(selectPage,true);
+            currentPage = selectPage;
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_hot_list,container,false);
 
+        segment_artist = (TextView)rootView.findViewById(R.id.segment_artist);
+        segment_music = (TextView)rootView.findViewById(R.id.segment_music);
+        segment_artist.setOnClickListener(this);
+        segment_music.setOnClickListener(this);
         final ArrayList<View> views = new ArrayList<View>();
 
         musicList = new ListView(getActivity());
         views.add(musicList);
 
-        ListView list2 = new ListView(getActivity());
-        views.add(list2);
+        artistList = new ListView(getActivity());
+        views.add(artistList);
+
         viewPager = (ViewPager)rootView.findViewById(R.id.view_pager);
 
         viewPager.setAdapter(new PagerAdapter() {
@@ -112,12 +133,9 @@ public class HotListFragment extends BaseFragment {
             public void onSuccess(int statusCode, Header[] headers, String responseString) {
 
                 String responseInfo = responseString.substring(28, responseString.length() - 2);
-                Log.i("zbc",""+responseInfo.length());
-//                responseInfo = "{\"songs\":[{\"count\":3599,\"picture\":\"http://img3.douban.com/view/site/median/public/1a774de56fb4bf2.jpg\",\"name\":\"微风曲\",\"artist\":\"好妹妹\",\"rank\":1,\"id\":\"634129\",\"length\":\"3:30\",\"artist_id\":\"105827\",\"src\":\"http://mr3.douban.com/201601181131/ede1f0f2bedfaa9b95dd63d239b3d7e9/view/musicianmp3/mp3/x18044848.mp3\",\"widget_id\":\"191023424\"}]}";
                 Gson gson = new Gson();
-                Log.i("zbc", responseInfo);
 
-                Map<String,ArrayList<Music>> map = gson.fromJson(responseInfo, new TypeToken<Map<String,ArrayList<Music>>>() {
+                Map<String, ArrayList<Music>> map = gson.fromJson(responseInfo, new TypeToken<Map<String, ArrayList<Music>>>() {
                 }.getType());
                 musics = map.get("songs");
                 MusicArrayAdapter adapter = null;
@@ -126,6 +144,30 @@ public class HotListFragment extends BaseFragment {
                     adapter = new MusicArrayAdapter(HotListFragment.this.getActivity(), R.layout.list_item_music, musics);
                 }
                 musicList.setAdapter(adapter);
+            }
+        });
+
+        HttpUtils.get(Api.ARTIST_URL, new TextHttpResponseHandler() {
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+
+                String responseInfo = responseString.substring(27, responseString.length() - 2);
+                Gson gson = new Gson();
+
+                Map<String, ArrayList<Artist>> map = gson.fromJson(responseInfo, new TypeToken<Map<String, ArrayList<Artist>>>() {
+                }.getType());
+                artists = map.get("artists");
+                ArtistArrayAdapter adapter = null;
+                if (artists != null) {
+                    System.out.println(musics);
+                    adapter = new ArtistArrayAdapter(HotListFragment.this.getActivity(), R.layout.list_item_artist, artists);
+                }
+                artistList.setAdapter(adapter);
             }
         });
     }
@@ -152,11 +194,11 @@ public class HotListFragment extends BaseFragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder holder = null;
+            MusicViewHolder holder = null;
             View view = null;
             if (convertView == null) {
                 view = View.inflate(getActivity(), resourceId, null);
-                holder = new ViewHolder();
+                holder = new MusicViewHolder();
                 holder.headPic = (ImageView) view.findViewById(R.id.image_view);
                 holder.title = (TextView) view.findViewById(R.id.music_name);
                 holder.singer = (TextView) view.findViewById(R.id.singer);
@@ -164,7 +206,7 @@ public class HotListFragment extends BaseFragment {
                 view.setTag(holder);
             } else {
                 view = convertView;
-                holder = (ViewHolder) view.getTag();
+                holder = (MusicViewHolder) view.getTag();
             }
             Music m = getItem(position);
             holder.title.setText(m.name);
@@ -174,14 +216,53 @@ public class HotListFragment extends BaseFragment {
         }
     }
 
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-    }
-
-    class ViewHolder {
+    class MusicViewHolder {
         ImageView headPic;
         TextView title;
         TextView singer;
         ImageButton playBtn;
+    }
+
+    class ArtistArrayAdapter extends ArrayAdapter<Artist> {
+        private int resourceId;
+
+
+        public ArtistArrayAdapter(Context context, int resource, List<Artist> objects) {
+            super(context, resource, objects);
+            this.resourceId = resource;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ArtistViewHolder holder = null;
+            View view = null;
+            if (convertView == null) {
+                view = View.inflate(getActivity(), resourceId, null);
+                holder = new ArtistViewHolder();
+                holder.headPic = (ImageView) view.findViewById(R.id.image_view);
+                holder.title = (TextView) view.findViewById(R.id.artist_name);
+                holder.style = (TextView) view.findViewById(R.id.style);
+                holder.follows = (TextView) view.findViewById(R.id.follows);
+                holder.love = (ImageButton) view.findViewById(R.id.love_btn);
+                view.setTag(holder);
+            } else {
+                view = convertView;
+                holder = (ArtistViewHolder) view.getTag();
+            }
+            Artist a = getItem(position);
+            holder.title.setText(a.name);
+            holder.follows.setText(a.follower);
+            holder.style.setText(a.style);
+            loadImage(a.picture,holder.headPic);
+            return view;
+        }
+    }
+
+    class ArtistViewHolder {
+        ImageView headPic;
+        TextView title;
+        TextView style;
+        TextView follows;
+        ImageButton love;
     }
 }
