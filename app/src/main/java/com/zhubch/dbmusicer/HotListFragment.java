@@ -1,12 +1,14 @@
 package com.zhubch.dbmusicer;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -58,11 +60,17 @@ public class HotListFragment extends BaseFragment implements View.OnClickListene
 
     @Override
     public void onClick(View view) {
-        segment_music.setBackgroundColor(R.color.colorAccent);
         int selectPage = view.getId() == R.id.segment_music ? 0 : 1;
         if (currentPage != selectPage){
             viewPager.setCurrentItem(selectPage,true);
             currentPage = selectPage;
+            if (selectPage == 0){
+                segment_music.setTextColor(getResources().getColor(R.color.colorBlack));
+                segment_artist.setTextColor(getResources().getColor(R.color.colorGray));
+            }else{
+                segment_music.setTextColor(getResources().getColor(R.color.colorGray));
+                segment_artist.setTextColor(getResources().getColor(R.color.colorBlack));
+            }
         }
     }
 
@@ -77,10 +85,30 @@ public class HotListFragment extends BaseFragment implements View.OnClickListene
         segment_music.setOnClickListener(this);
         final ArrayList<View> views = new ArrayList<View>();
 
+        ListView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Artist a = new Artist();
+                if (adapterView == musicList){
+                    Music m = musics.get(i);
+                    a.picture = m.picture;
+                    a.name = m.artist;
+                    a.id = m.artist_id;
+                }else {
+                    a = artists.get(i);
+                }
+                Intent intent = new Intent(getActivity(),ArtistActivity.class);
+                intent.putExtra("artist",a);
+                startActivityForResult(intent, 10086);
+            }
+        };
         musicList = new ListView(getActivity());
-        views.add(musicList);
+        musicList.setOnItemClickListener(listener);
 
         artistList = new ListView(getActivity());
+        artistList.setOnItemClickListener(listener);
+
+        views.add(musicList);
         views.add(artistList);
 
         viewPager = (ViewPager)rootView.findViewById(R.id.view_pager);
@@ -140,7 +168,6 @@ public class HotListFragment extends BaseFragment implements View.OnClickListene
                 musics = map.get("songs");
                 MusicArrayAdapter adapter = null;
                 if (musics != null) {
-                    System.out.println(musics);
                     adapter = new MusicArrayAdapter(HotListFragment.this.getActivity(), R.layout.list_item_music, musics);
                 }
                 musicList.setAdapter(adapter);
@@ -164,7 +191,6 @@ public class HotListFragment extends BaseFragment implements View.OnClickListene
                 artists = map.get("artists");
                 ArtistArrayAdapter adapter = null;
                 if (artists != null) {
-                    System.out.println(musics);
                     adapter = new ArtistArrayAdapter(HotListFragment.this.getActivity(), R.layout.list_item_artist, artists);
                 }
                 artistList.setAdapter(adapter);

@@ -1,9 +1,11 @@
 package com.zhubch.dbmusicer.Model;
 
+import java.io.Serializable;
+
 /**
  * Created by zhubch on 1/18/16.
  */
-public class Artist {
+public class Artist implements Serializable{
 
     public int count;
     public String picture;

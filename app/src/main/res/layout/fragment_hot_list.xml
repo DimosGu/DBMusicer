@@ -18,6 +18,7 @@
                 android:layout_height="match_parent"
                 android:gravity="center_vertical|center_horizontal"
                 android:text="热门单曲"
+                android:textColor="@color/colorBlack"
                 android:background="@color/colorLightGray"
                 android:layout_weight="1"/>
             <TextView
@@ -26,13 +27,14 @@
                 android:layout_height="match_parent"
                 android:gravity="center_vertical|center_horizontal"
                 android:text="热门音乐人"
+                android:textColor="@color/colorBlack"
                 android:background="@color/colorLightGray"
                 android:layout_weight="1"/>
         </LinearLayout>
 
         <android.support.v4.view.ViewPager
             android:id="@+id/view_pager"
-            android:background="#ffffff"
+            android:background="@color/colorWhite"
             android:layout_width="match_parent"
             android:layout_height='match_parent'/>
     </LinearLayout>

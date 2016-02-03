@@ -15,10 +15,10 @@
     <include layout="@layout/tab_bar"
         android:id="@+id/tab_bar"
         android:layout_width="match_parent"
-        android:layout_height="49dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"></include>
 
-    <fragment
+    <FrameLayout
         android:id="@+id/content"
         android:name="com.zhubch.dbmusicer.HotListFragment"
         android:layout_width="match_parent"
